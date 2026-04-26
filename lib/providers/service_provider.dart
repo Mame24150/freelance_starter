@@ -2,52 +2,42 @@ import 'package:flutter/material.dart';
 import '../models/service_model.dart';
 
 class ServiceProvider with ChangeNotifier {
-  // Liste privée des services (Base de données locale)
-  final List<ServiceModel> _services = [];
+  final List<ServiceModel> _services = [
+    ServiceModel(
+      id: '1',
+      titre: 'Design de Logo Professionnel',
+      description: 'Création de logos modernes, épurés et uniques pour votre marque avec tous les fichiers sources inclus.',
+      prix: 1500.0,  
+      categorie: 'Graphisme',
+      image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1000', 
+      nomFreelancer: 'Ahmed Ali',
+      photoFreelancer: 'https://randomuser.me/api/portraits/men/32.jpg',
+      note: 4.8,
+    ),
+    ServiceModel(
+      id: '2',
+      titre: 'Développement Web Mobile',
+      description: 'Conception de sites vitrines et applications web performantes avec Flutter et une interface intuitive.',
+      prix: 8500.0,  
+      categorie: 'Programmation',
+      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000',
+      nomFreelancer: 'Sarah Mansour',
+      photoFreelancer: 'https://randomuser.me/api/portraits/women/44.jpg',
+      note: 4.9,
+    ),
+  ];
+
   String _texteRecherche = "";
 
-  // Getter pour récupérer les services (avec filtrage par recherche)
-  List<ServiceModel> get tousLesServices {
-    if (_texteRecherche.isEmpty) {
-      return _services;
-    }
+  List<ServiceModel> get servicesFiltres {
+    if (_texteRecherche.isEmpty) return _services;
     return _services
         .where((s) => s.titre.toLowerCase().contains(_texteRecherche.toLowerCase()))
         .toList();
   }
 
-  // --- ACTIONS DU CMS ---
-
-  // 1. Ajouter un service
-  void ajouterService(ServiceModel service) {
-    _services.add(service);
-    notifyListeners(); // Actualise l'interface utilisateur
-  }
-
-  // 2. Supprimer un service
-  void supprimerService(String id) {
-    _services.removeWhere((s) => s.id == id);
-    notifyListeners();
-  }
-
-  // 3. Mettre à jour la recherche
-  void mettreAJourRecherche(String valeur) {
+  void filtrer(String valeur) {
     _texteRecherche = valeur;
     notifyListeners();
-  }
-
-  // 4. Trier par prix (du moins cher au plus cher)
-  void trierParPrix() {
-    _services.sort((a, b) => a.prix.compareTo(b.prix));
-    notifyListeners();
-  }
-
-  // 5. Inverser l'état favoris
-  void toggleFavoris(String id) {
-    final index = _services.indexWhere((s) => s.id == id);
-    if (index != -1) {
-      _services[index].estFavoris = !_services[index].estFavoris;
-      notifyListeners();
-    }
   }
 }
