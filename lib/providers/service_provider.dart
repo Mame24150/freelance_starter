@@ -1,39 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../models/service_model.dart';
 
 class ServiceProvider with ChangeNotifier {
-  final List<ServiceModel> _services = [
-    ServiceModel(
-      id: '1',
-      titre: 'Design de Logo Professionnel',
-      description: 'Création de logos modernes, épurés et uniques pour votre marque avec tous les fichiers sources inclus.',
-      prix: 1500.0,  
-      categorie: 'Graphisme',
-      image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1000', 
-      nomFreelancer: 'Ahmed Ali',
-      photoFreelancer: 'https://randomuser.me/api/portraits/men/32.jpg',
-      note: 4.8,
-    ),
-    ServiceModel(
-      id: '2',
-      titre: 'Développement Web Mobile',
-      description: 'Conception de sites vitrines et applications web performantes avec Flutter et une interface intuitive.',
-      prix: 8500.0,  
-      categorie: 'Programmation',
-      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000',
-      nomFreelancer: 'Sarah Mansour',
-      photoFreelancer: 'https://randomuser.me/api/portraits/women/44.jpg',
-      note: 4.9,
-    ),
-  ];
+  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref("services");
 
+  List<ServiceModel> _services = [];
   String _texteRecherche = "";
+  bool _isLoading = true;
+
+  ServiceProvider() {
+    fetchServicesFromFirebase();
+  }
+
+  bool get isLoading => _isLoading;
 
   List<ServiceModel> get servicesFiltres {
     if (_texteRecherche.isEmpty) return _services;
     return _services
         .where((s) => s.titre.toLowerCase().contains(_texteRecherche.toLowerCase()))
         .toList();
+  }
+
+  void fetchServicesFromFirebase() {
+    _dbRef.onValue.listen((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data != null) {
+        _services = data.entries.map((entry) {
+          return ServiceModel.fromJson(entry.value as Map, entry.key);
+        }).toList();
+      } else {
+        _services = [];
+      }
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
+  // Fonction pour AJOUTER un service
+  Future<void> addService(Map<String, dynamic> serviceData) async {
+    try {
+      await _dbRef.push().set(serviceData);
+    } catch (e) {
+      print("Erreur lors de l'ajout: $e");
+    }
+  }
+
+  // Fonction pour SUPPRIMER un service
+  Future<void> deleteService(String id) async {
+    try {
+      await _dbRef.child(id).remove();
+    } catch (e) {
+      print("Erreur lors de la suppression: $e");
+    }
   }
 
   void filtrer(String valeur) {

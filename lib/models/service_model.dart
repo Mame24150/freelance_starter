@@ -23,18 +23,18 @@ class ServiceModel {
     this.estFavoris = false,
   });
 
-  // Conversion JSON pour la future connexion avec Django
-  factory ServiceModel.fromJson(Map<String, dynamic> json) {
+  // Correction pour correspondre aux clés Firebase et éviter les erreurs de type
+  factory ServiceModel.fromJson(Map<dynamic, dynamic> json, String key) {
     return ServiceModel(
-      id: json['id'].toString(),
-      titre: json['titre'],
-      description: json['description'],
-      prix: (json['prix'] as num).toDouble(),
-      categorie: json['categorie'],
+      id: key, // On utilise la clé unique de Firebase comme ID
+      titre: json['titre'] ?? '',
+      description: json['description'] ?? '',
+      prix: (json['prix'] as num? ?? 0.0).toDouble(),
+      categorie: json['categorie'] ?? '',
       image: json['image'] ?? 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1000',
-      nomFreelancer: json['nom_freelancer'] ?? 'Freelancer',
-      photoFreelancer: json['photo_freelancer'] ?? 'https://randomuser.me/api/portraits/men/1.jpg',
+      nomFreelancer: json['nomFreelancer'] ?? 'Freelancer', // Changé nom_freelancer -> nomFreelancer
+      photoFreelancer: json['photoFreelancer'] ?? 'https://randomuser.me/api/portraits/men/1.jpg', // Changé photo_freelancer -> photoFreelancer
       note: (json['note'] as num? ?? 0.0).toDouble(),
     );
-  }
+  } 
 }
